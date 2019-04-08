@@ -444,7 +444,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         
         alertInterval.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
         
-        let currentCharacterCount = ((textField.text?.characters.count)! + string.characters.count) - 1
+        let currentCharacterCount = ((textField.text?.count)! + string.count) - 1
         
         switch (textField, currentCharacterCount) {
         case (self.ip1, 3):

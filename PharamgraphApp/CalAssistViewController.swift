@@ -544,7 +544,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                             else if offsetNum != 0 && scaleNum == 0 {
                                 
                                 y1 = (inputValue1Num!-offsetNum!)/1
-                                print(y1)
+                                print(y1 as Any)
                                 inputValue2.text = y1.cleanValue
                                 
                             }
@@ -552,7 +552,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                             else {
                             
                         y1 = (inputValue1Num!-offsetNum!)/scaleNum!
-                        print(y1)
+                                print(y1 as Any)
                         inputValue1.text = y1.cleanValue
                             }
                         
@@ -625,14 +625,14 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                         else if offsetNum != 0 && scaleNum == 0 {
                             
                             y2 = (inputValue2Num!-offsetNum!)/1
-                            print(y2)
+                            print(y2 as Any)
                             inputValue2.text = y2.cleanValue
                             
                         }
                         
                         else {
                         y2 = (inputValue2Num!-offsetNum!)/scaleNum!
-                        print(y2)
+                            print(y2 as Any)
                         inputValue2.text = y2.cleanValue
                         
                         }

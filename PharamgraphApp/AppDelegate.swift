@@ -75,7 +75,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
        
         
         let controllers = [homeVC, editVC, s2VC, presetsVC, scannerVC]
-        tabBarController.viewControllers = controllers as! [UIViewController]
+        tabBarController.viewControllers = (controllers as! [UIViewController])
         
         tabBarController.viewControllers = controllers.map { UINavigationController(rootViewController: $0 as! UIViewController)}
         
