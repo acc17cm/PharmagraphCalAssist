@@ -5,17 +5,81 @@
 //  Created by Cameron McWilliam on 18/07/2018.
 //  Copyright © 2018 Cameron McWilliam. All rights reserved.
 //
-
+import Foundation
 import UIKit
 
 @UIApplicationMain
+
+
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var viewController: ViewController!
+    var homeVC: CalAssistViewController!
+    var editVC: EditViewController!
+    var s2VC: ViewController!
+    var tabBarController: UITabBarController!
+    var homeItem: UITabBarItem!
+    var editItem: UITabBarItem!
+    var presetItem: UITabBarItem!
+    var scannerItem: UITabBarItem!
+    var calItem: UITabBarItem!
 
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        
+        let window = UIWindow()
+        window.makeKeyAndVisible()
+        self.window = window
+    
+        homeVC = CalAssistViewController()
+        homeVC.title = "Home"
+        
+        editVC = EditViewController()
+        editVC.title = "Edit"
+        
+        s2VC = ViewController()
+        s2VC.title = "Series 2000 Test Client"
+        
+        let presetsVC = PresetViewController()
+        presetsVC.title = "Presets"
+        
+        let scannerVC = ScannerViewController()
+        scannerVC.title = "Scanner"
+        
+        
+        tabBarController = UITabBarController()
+        window.rootViewController = tabBarController
+        
+        homeItem = UITabBarItem(title: "Home", image: UIImage(named: "home"), selectedImage: UIImage(named: "home"))
+        editItem = UITabBarItem(title: "Edit", image: UIImage(named: "save"), selectedImage: UIImage(named: "save"))
+        calItem = UITabBarItem(title: "Series2000Client", image: UIImage(named: "calassist"), selectedImage: UIImage(named: "calassist"))
+        presetItem = UITabBarItem(title: "Presets", image: UIImage(named: "preset"), selectedImage: UIImage(named: "preset"))
+        scannerItem = UITabBarItem(title: "Scanner", image: UIImage(named: "qr"), selectedImage: UIImage(named: "qr"))
 
-    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        homeItem.tag = 0
+        editItem.tag = 1
+        calItem.tag = 2
+        presetItem.tag = 3
+        scannerItem.tag = 4
+        
+        homeVC.tabBarItem = homeItem
+        
+        editVC.tabBarItem = editItem
+        
+        s2VC.tabBarItem = calItem
+        
+        presetsVC.tabBarItem = presetItem
+        
+        scannerVC.tabBarItem = scannerItem
+        
+       
+        
+        let controllers = [homeVC, editVC, s2VC, presetsVC, scannerVC]
+        tabBarController.viewControllers = controllers as! [UIViewController]
+        
+        tabBarController.viewControllers = controllers.map { UINavigationController(rootViewController: $0 as! UIViewController)}
+        
+        
         return true
     }
 
