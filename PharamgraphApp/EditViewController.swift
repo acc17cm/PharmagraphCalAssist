@@ -16,6 +16,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
     var ipString : UILabel!
     var portString: UILabel!
     var pointString: UILabel!
+    var presetTitle: UILabel!
     var ip1 : UITextField!
     var ip2 : UITextField!
     var ip3 : UITextField!
@@ -40,6 +41,10 @@ class EditViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         
+        // Keyboard notifications for moving view up when textfield is being entered
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
         super.viewDidLoad()
         
         //Background Colour white
@@ -50,6 +55,15 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         
         //Defaults for persistence
         let defaults = UserDefaults.standard
+        
+        presetTitle = UILabel()
+        presetTitle.text = defaults.value(forKey: "name") as? String
+        presetTitle.sizeToFit()
+        presetTitle.adjustsFontSizeToFitWidth = true;
+        presetTitle.textAlignment = .center
+        presetTitle.minimumScaleFactor = 12.0
+        presetTitle.center = CGPoint(x: view.bounds.width/2, y: view.bounds.height/2-250);
+        view.addSubview(presetTitle)
         
         //Displays "I.P. Address:" above where user enters IP in
         ipString = UILabel()
@@ -183,35 +197,6 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         port.addDoneButtonToKeyboard(myAction:  #selector(self.port.resignFirstResponder))
         view.addSubview(port)
         
-        point = UITextField(frame: CGRect(x: view.bounds.width/2-13, y: view.bounds.height/2-20, width: 70, height: 20))
-        point.keyboardType = UIKeyboardType.numberPad
-        point.attributedPlaceholder = placeholder
-        point.textColor = UIColor.black
-        point.delegate = self
-        point.borderStyle = UITextField.BorderStyle.roundedRect
-        point.clearsOnBeginEditing = false
-        point.text = defaults.value(forKey: "pointText") as? String
-        if point.text == nil {
-            defaults.set("\u{200B}", forKey: "pointText")
-            point.text = defaults.value(forKey: "pointText") as? String
-        }
-        else {
-        }
-        point.addDoneButtonToKeyboard(myAction:  #selector(self.point.resignFirstResponder))
-        //view.addSubview(point)
-        
-        cameraButton = UIButton(frame: CGRect(x: view.bounds.width/2+65, y: view.bounds.height/2-23, width: 110, height: 25))
-        cameraButton.backgroundColor = .clear
-        cameraButton.showsTouchWhenHighlighted = true
-        cameraButton.layer.cornerRadius = 5
-        cameraButton.layer.borderWidth = 1
-        cameraButton.layer.borderWidth = 1
-        cameraButton.layer.borderColor = UIColor.gray.cgColor
-        cameraButton.setTitleColor(UIColor.darkGray, for: .normal)
-        cameraButton.addTarget(self, action: #selector(pushCamera), for: .touchUpInside)
-        cameraButton.setTitle("QR Scanner", for: .normal)
-        //self.view.addSubview(cameraButton)
-        
         //Displays "Interval: " above where user enters interval in
         intervalString = UILabel()
         intervalString.text = "Interval:"
@@ -238,6 +223,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         interval.addDoneButtonToKeyboard(myAction:  #selector(self.interval.resignFirstResponder))
         view.addSubview(interval)
         
+        // Button that clears all fields
         clearButton = UIButton(frame: CGRect(x: view.bounds.width/2-90, y: view.bounds.height/2+200, width: 80, height: 30))
         clearButton.backgroundColor = .clear
         clearButton.showsTouchWhenHighlighted = true
@@ -250,6 +236,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         clearButton.setTitle("Clear", for: .normal)
         self.view.addSubview(clearButton)
         
+        // Button that saves all fields into a preset
         savePreset = UIButton(frame: CGRect(x: view.bounds.width/2+20, y: view.bounds.height/2+200, width: 80, height: 30))
         savePreset.backgroundColor = .clear
         savePreset.showsTouchWhenHighlighted = true
@@ -262,6 +249,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         savePreset.setTitle("Save", for: .normal)
         self.view.addSubview(savePreset)
         
+        // SQL commands to save to database
         let fileURL = try! FileManager.default.url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: false)
             .appendingPathComponent("db.sqlite3")
         
@@ -299,16 +287,9 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    @objc func pushCamera(_sender: UIButton) {
-      
-        let appDelegate = UIApplication.shared.delegate as! AppDelegate
-        let tabBar = appDelegate.tabBarController
-        tabBar?.selectedIndex = 3
-        
-        
-    }
-    
+    // Clears fields, puts invisible character into every field except first one
     @objc func clearAction(_sender: UIButton) {
+        defaults.set("", forKey: "name")
         defaults.set("", forKey: "ip1Text")
         defaults.set("\u{200B}", forKey: "ip2Text")
         defaults.set("\u{200B}", forKey: "ip3Text")
@@ -316,73 +297,44 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         defaults.set("\u{200B}", forKey: "portText")
         defaults.set("\u{200B}", forKey: "pointText")
         defaults.set("\u{200B}", forKey: "intervalText")
+        presetTitle.text =  defaults.value(forKey: "name") as? String
         ip1.text = defaults.value(forKey: "ip1Text") as? String
         ip2.text = defaults.value(forKey: "ip2Text") as? String
         ip3.text = defaults.value(forKey: "ip3Text") as? String
         ip4.text = defaults.value(forKey: "ip4Text") as? String
         port.text = defaults.value(forKey: "portText") as? String
-        point.text = defaults.value(forKey: "pointText") as? String
         interval.text = defaults.value(forKey: "intervalText") as? String
     }
     
-    func readValues(){
-        
-        //first empty the list of heroes
-        presetList.removeAll()
-        
-        //this is our select query
-        let queryString = "SELECT * FROM presets"
-        
-        //statement pointer
-        var stmt:OpaquePointer?
-        
-        //preparing the query
-        if sqlite3_prepare(dbP, queryString, -1, &stmt, nil) != SQLITE_OK{
-            let errmsg = String(cString: sqlite3_errmsg(dbP)!)
-            print("error preparing insert: \(errmsg)")
-            return
-        }
-        
-        //traversing through all the records
-        while(sqlite3_step(stmt) == SQLITE_ROW){
-            let id = sqlite3_column_int(stmt, 0)
-            let name = String(cString: sqlite3_column_text(stmt, 1))
-            let ip1 = String(cString: sqlite3_column_text(stmt, 2))
-            let ip2 = String(cString: sqlite3_column_text(stmt, 3))
-            let ip3 = String(cString: sqlite3_column_text(stmt, 4))
-            let ip4 = String(cString: sqlite3_column_text(stmt, 5))
-            let port = String(cString: sqlite3_column_text(stmt, 6))
-            let point = String(cString: sqlite3_column_text(stmt, 7))
-            let interval = String(cString: sqlite3_column_text(stmt, 8))
-            
-            //adding values to list
-            presetList.append(Preset(id: Int(id), name: String(describing: name), ip1: String(describing: ip1),
-                                     ip2: String(describing: ip2), ip3: String(describing: ip3), ip4: String(describing: ip4), port: String(describing: port), point: String(describing: point), interval: String(describing: interval)))
-        }
-        
-    }
+    // Save function that saves preset to database
     @objc func presetAction() {
         
-        let alert = UIAlertController(title: "Preset name", message: "Enter preset name:", preferredStyle: .alert)
+        let alert = UIAlertController(title: "Preset name", message: "Enter preset name:", preferredStyle: .alert) // Banner appears
         
-        //2. Add the text field. You can configure it however you need.
+        // Text field in banner
         alert.addTextField { (textField) in
             textField.text = ""
         }
         
-        // 3. Grab the value from the text field, and print it when the user clicks OK.
+        // Save button the banner
         alert.addAction(UIAlertAction(title: "Save", style: .default, handler: { [weak alert] (_) in
             let textField = alert?.textFields![0] // Force unwrapping because we know it exists.
             let name = textField?.text
+            self.presetTitle.text = name
             let ip1Data = self.ip1?.text
             let ip2Data = self.ip2?.text
             let ip3Data = self.ip3?.text
             let ip4Data = self.ip4?.text
             let portData = self.port?.text
-            let pointData = self.point?.text
             let intervalData = self.interval?.text
+            self.defaults.set(self.presetTitle.text, forKey: "name")
+            self.defaults.set(self.ip1.text, forKey: "ip1Text")
+            self.defaults.set(self.ip2.text, forKey: "ip2Text")
+            self.defaults.set(self.ip3.text, forKey: "ip3Text")
+            self.defaults.set(self.ip4.text, forKey: "ip4Text")
+            self.defaults.set(self.port.text, forKey: "portText")
+            self.defaults.set(self.interval.text, forKey: "intervalText")
             
-            // Assuming the database file is named "database.sqlite":
             let path = NSSearchPathForDirectoriesInDomains(
                 .documentDirectory, .userDomainMask, true
                 ).first!
@@ -411,9 +363,12 @@ class EditViewController: UIViewController, UITextFieldDelegate {
                 t.column(intervalt)
             })
             
-            
-            let insert = presets.insert(or: .replace, namet <- name!, ip1t <- ip1Data!, ip2t <- ip2Data!, ip3t <- ip3Data!, ip4t <- ip4Data!, portt <- portData!, pointt <- pointData!, intervalt <- intervalData!)
+
+            let insert = presets.insert(or: .replace, namet <- name!, ip1t <- ip1Data!, ip2t <- ip2Data!, ip3t <- ip3Data!, ip4t <- ip4Data!, portt <- portData!, pointt <- "1", intervalt <- intervalData!)
             let rowid = try! db.run(insert)
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let tabBar = appDelegate.tabBarController
+            tabBar?.selectedIndex = 0
             
         }))
         
@@ -422,7 +377,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         
     }
     
-    //Main functions of textfield
+    //Main functions of textfield, prevents invalid entries
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
         let char = string.cString(using: String.Encoding.utf8)!
@@ -445,6 +400,8 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         alertInterval.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
         
         let currentCharacterCount = ((textField.text?.count)! + string.count) - 1
+        
+        // Automatically switch to next textfield, dependant on backspace or typing in
         
         switch (textField, currentCharacterCount) {
         case (self.ip1, 3):
@@ -560,15 +517,26 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         
     }
     
+    // Saves values on view appearing
+    
     override func viewWillAppear(_ animated: Bool) {
         
+        presetTitle.text = ""
         ip1.text = defaults.value(forKey: "ip1Text") as? String
         ip2.text = defaults.value(forKey: "ip2Text") as? String
         ip3.text = defaults.value(forKey: "ip3Text") as? String
         ip4.text = defaults.value(forKey: "ip4Text") as? String
         port.text = defaults.value(forKey: "portText") as? String
-        point.text = defaults.value(forKey: "pointText") as? String
         interval.text = defaults.value(forKey: "intervalText") as? String
+        
+        presetTitle = UILabel()
+        presetTitle.text = defaults.value(forKey: "name") as? String
+        presetTitle.sizeToFit()
+        presetTitle.adjustsFontSizeToFitWidth = true;
+        presetTitle.textAlignment = .center
+        presetTitle.minimumScaleFactor = 12.0
+        presetTitle.center = CGPoint(x: view.bounds.width/2, y: view.bounds.height/2-250);
+        view.addSubview(presetTitle)
         
     }
     
@@ -576,8 +544,24 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         super.didReceiveMemoryWarning()
     }
     
+    // Function that moves view up when keyboard shows
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y == 0 {
+                self.view.frame.origin.y -= 170
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if self.view.frame.origin.y != 0 {
+            self.view.frame.origin.y = 0
+        }
+    }
+    
 }
 
+// Adds function to UITextfield that adds a done button to keyboard
 extension UITextField {
     func addDoneButtonToKeyboard(myAction:Selector?){
         let doneToolbar: UIToolbar = UIToolbar(frame: CGRect(x: 0, y: 0, width: 300, height: 40))

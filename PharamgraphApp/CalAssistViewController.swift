@@ -67,8 +67,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
     var y2: Float!
     var offsetNum: Float!
     var scaleNum: Float!
-    var alertFailConnect: UIAlertController!
-    var alertFailQuery: UIAlertController!
+    var alertFail: UIAlertController!
     var generator: UIImpactFeedbackGenerator!
     var alarmConnect: Bool!
     var timeout: UInt32!
@@ -78,95 +77,41 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         
-        state = false
-        alarmConnect = false
-        point = pointNumber
-        calibrationState = false
-        
-        timeout = 200000
-        generator = UIImpactFeedbackGenerator(style: .heavy)
+        state = false // Boolean value for if alarm switch is on, false = off, true = on
+        alarmConnect = false // Boolean value for if alarms are inhibited
+        point = pointNumber // Holds point number value
+        calibrationState = false // Boolean value for if currently connected and calibrating
+        timeout = 200000 // Timeout value
+        generator = UIImpactFeedbackGenerator(style: .heavy) // Initialisers for haptic generator
         
         view.backgroundColor = UIColor.white
         
-        let placeholder = NSAttributedString(string: "")
+        // Keyboard notifications for moving view up when textfield is being entered
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
+        let placeholder = NSAttributedString(string: "") //Sets placeholder as empty
+        
+        // Next ip and port fields are not visible on the view, they hold the values from the preset currently loaded
         
         ip1 = UITextField(frame: CGRect(x: 40, y: 100, width: 60, height: 20))
-        ip1.keyboardType = UIKeyboardType.numberPad
-        ip1.attributedPlaceholder = placeholder
-        ip1.textColor = UIColor.black
-        ip1.delegate = self
-        ip1.borderStyle = UITextField.BorderStyle.roundedRect
-        ip1.clearsOnBeginEditing = false
         ip1.text = defaults.value(forKey: "ip1Text") as? String
-        
-        //Second textfield where user enters IP
-        ip2 = UITextField(frame: CGRect(x: 110, y: 100, width: 60, height: 20))
-        ip2.keyboardType = UIKeyboardType.numberPad
-        ip2.attributedPlaceholder = placeholder
-        ip2.textColor = UIColor.black
-        ip2.delegate = self
-        ip2.borderStyle = UITextField.BorderStyle.roundedRect
-        ip2.clearsOnBeginEditing = false
+        ip2 = UITextField(frame: CGRect(x: 40, y: 100, width: 60, height: 20))
         ip2.text = defaults.value(forKey: "ip2Text") as? String
-        if ip2.text == nil {
-            defaults.set("\u{200B}", forKey: "ip2Text")
-            ip2.text = defaults.value(forKey: "ip2Text") as? String
-        }
-        else {
-        }
-        
-        //Third textfield where user enters IP
-        ip3 = UITextField(frame: CGRect(x: 180, y: 100, width: 60, height: 20))
-        ip3.keyboardType = UIKeyboardType.numberPad
-        ip3.attributedPlaceholder = placeholder
-        ip3.textColor = UIColor.black
-        ip3.delegate = self
-        ip3.borderStyle = UITextField.BorderStyle.roundedRect
-        ip3.clearsOnBeginEditing = false
+        ip3 = UITextField(frame: CGRect(x: 40, y: 100, width: 60, height: 20))
         ip3.text = defaults.value(forKey: "ip3Text") as? String
-        if ip3.text == nil {
-            defaults.set("\u{200B}", forKey: "ip3Text")
-            ip3.text = defaults.value(forKey: "ip3Text") as? String
-        }
-        else {
-        }
-        
-        //Fourth textfield where user enters IP
-        ip4 = UITextField(frame: CGRect(x: 250, y: 100, width: 60, height: 20))
-        ip4.keyboardType = UIKeyboardType.numberPad
-        ip4.attributedPlaceholder = placeholder
-        ip4.textColor = UIColor.black
-        ip4.delegate = self
-        ip4.borderStyle = UITextField.BorderStyle.roundedRect
-        ip4.clearsOnBeginEditing = false
+        ip4 = UITextField(frame: CGRect(x: 40, y: 100, width: 60, height: 20))
         ip4.text = defaults.value(forKey: "ip4Text") as? String
-        if ip4.text == nil {
-            defaults.set("\u{200B}", forKey: "ip4Text")
-            ip4.text = defaults.value(forKey: "ip4Text") as? String
-        }
-        else {
-        }
-        
-        //Textfield where user enters port
-        port = UITextField(frame: CGRect(x: 330, y: 100, width: 70, height: 20))
-        port.keyboardType = UIKeyboardType.numberPad
-        port.attributedPlaceholder = placeholder
-        port.textColor = UIColor.black
-        port.delegate = self
-        port.borderStyle = UITextField.BorderStyle.roundedRect
-        port.clearsOnBeginEditing = false
+        port = UITextField(frame: CGRect(x: 40, y: 100, width: 60, height: 20))
         port.text = defaults.value(forKey: "portText") as? String
-        if port.text == nil {
-            defaults.set("\u{200B}", forKey: "portText")
-            port.text = defaults.value(forKey: "portText") as? String
-        }
-        else {
-        }
         
+        // Grey rectangle that holds customer, site and system info
         let layer = CAShapeLayer()
-        layer.path = UIBezierPath(roundedRect: CGRect(x: 6, y: 70, width: 363, height: 80), cornerRadius: 20).cgPath
+        layer.path = UIBezierPath(roundedRect: CGRect(x: 6, y: 100, width: 363, height: 120), cornerRadius: 20).cgPath
         layer.fillColor = UIColor.lightGray.cgColor
         view.layer.addSublayer(layer)
+        
+        // Labels that hold values and customer, site and system
         
         customerText = UILabel()
         customerText.text = customerName
@@ -174,7 +119,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         customerText.adjustsFontSizeToFitWidth = true;
         customerText.textAlignment = .left
         customerText.minimumScaleFactor = 10.0
-        customerText.frame = CGRect(x: view.bounds.width/2-172, y: view.bounds.height/2-277, width: 300, height: 60)
+        customerText.frame = CGRect(x: view.bounds.width/2-170, y: view.bounds.height/2-310, width: 300, height: 60)
         view.addSubview(customerText)
         
         siteText = UILabel()
@@ -183,7 +128,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         siteText.adjustsFontSizeToFitWidth = true;
         siteText.textAlignment = .left
         siteText.minimumScaleFactor = 10.0
-        siteText.frame = CGRect(x: view.bounds.width/2-172, y: view.bounds.height/2-253, width: 300, height: 60)
+        siteText.frame = CGRect(x: view.bounds.width/2-172, y: view.bounds.height/2-275, width: 300, height: 60)
         view.addSubview(siteText)
         
         systemText = UILabel()
@@ -192,8 +137,10 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         systemText.adjustsFontSizeToFitWidth = true;
         systemText.textAlignment = .left
         systemText.minimumScaleFactor = 10.0
-        systemText.frame = CGRect(x: view.bounds.width/2-172, y: view.bounds.height/2-228, width: 300, height: 60)
+        systemText.frame = CGRect(x: view.bounds.width/2-172, y: view.bounds.height/2-240, width: 300, height: 60)
         view.addSubview(systemText)
+        
+        // Creates rest of UI for CalAssist
         
         descriptionLabel = UILabel()
         descriptionLabel.text = "Descriptor:"
@@ -248,7 +195,6 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         tagData.minimumScaleFactor = 10.0
         tagData.frame = CGRect(x: view.bounds.width/2-40, y: view.bounds.height/2-160, width: 300, height: 60)
         view.addSubview(tagData)
-
         
         initialScale = UILabel()
         initialScale.text = "Inital Scale:"
@@ -305,7 +251,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         alarmsText.textAlignment = .left
         alarmsText.frame = CGRect(x: view.bounds.width/2-50, y: view.bounds.height/2-85, width: 150, height: 60)
         view.addSubview(alarmsText)
-    
+        
         alarmsSwitch = UISwitch(frame: CGRect(x: view.bounds.width/2+105, y: view.bounds.height/2-70, width: 100, height: 20))
         alarmsSwitch.addTarget(self, action: #selector(stateChanged), for: .touchUpInside)
         self.view.addSubview(alarmsSwitch)
@@ -374,7 +320,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         captureInput1.layer.borderColor = UIColor.gray.cgColor
         captureInput1.setTitleColor(UIColor.darkGray, for: .normal)
         captureInput1.setTitle("Capture", for: .normal)
-        captureInput1.addTarget(self, action: #selector(calibrationAction), for: .touchUpInside)
+        captureInput1.addTarget(self, action: #selector(captureAction1), for: .touchUpInside)
         self.view.addSubview(captureInput1)
         
         captureInput2 = UIButton(frame: CGRect(x: view.bounds.width/2-52, y: view.bounds.height/2+75, width: 75, height: 30))
@@ -385,7 +331,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         captureInput2.layer.borderColor = UIColor.gray.cgColor
         captureInput2.setTitleColor(UIColor.darkGray, for: .normal)
         captureInput2.setTitle("Capture", for: .normal)
-        captureInput2.addTarget(self, action: #selector(calibrationAction2), for: .touchUpInside)
+        captureInput2.addTarget(self, action: #selector(captureAction2), for: .touchUpInside)
         self.view.addSubview(captureInput2)
         
         arrow1 = UILabel()
@@ -474,47 +420,34 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         calculateButton.setTitleColor(UIColor.darkGray, for: .normal)
         calculateButton.addTarget(self, action: #selector(calculate), for: .touchUpInside)
         calculateButton.setTitle("Calculate", for: .normal)
-        
         self.view.addSubview(calculateButton)
         
+        // Banners that appear when errors occur
         
+        alertFail = UIAlertController(title: "Connection Failed", message: "Please check your connection and try again", preferredStyle: .alert)
+        alertFail.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
         
-        
-        alertFailQuery = UIAlertController(title: "Connection Failed", message: "Please check your connection and try again", preferredStyle: .alert)
-        alertFailQuery.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
-        
-        alertFailConnect = UIAlertController(title: "Connection Failed", message: "Please check your connection and try again", preferredStyle: .alert)
-        alertFailConnect.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
-    
     }
     
-    @objc func calibrationAction(sender: UIButton) {
+    // Function that captures first value in calibration and puts it into the first text field
+    
+    @objc func captureAction1(sender: UIButton) {
         
-     
-        
+        // Prevents user entering captuing if point number is empty or isnt editable yet
         if calibrationValue1Entry.isUserInteractionEnabled == false || pointNumber == nil {
             
         }
-        
+            
         else {
             
-           generator.impactOccurred()
-            ip1String = self.ip1.text!
-            ip1Num = Int(ip1String)
-            ip2String = self.ip2.text!
-            let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-            ip2Num = Int(ip2String[indexStartOfText...])
-            ip3String = self.ip3.text!
-            ip3Num = Int(ip3String[indexStartOfText...])
-            ip4String = self.ip4.text!
-            ip4Num = Int(ip4String[indexStartOfText...])
-            portString = self.port.text!
-            portNum = Int32(portString[indexStartOfText...])
-            client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
+            generator.impactOccurred()
+            
             print("Connecting")
             print(point!)
             
-           switch client.connect(timeout: 1) {
+            // Connect to server
+            client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
+            switch client.connect(timeout: 1) {
             case .success:
                 switch client.send(string: "?V\(point!)\r" ) {
                 case .success:
@@ -525,6 +458,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                     
                     if let response = String(bytes: data, encoding: .utf8) {
                         
+                        // Gets data from server for calculation
                         
                         let indexEndOfText = response.index(response.endIndex, offsetBy: -3)
                         let responseString = response[...indexEndOfText]
@@ -535,45 +469,45 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                         let inputValue1Num = Float(inputValue1.text!)
                         offsetNum = Float(offsetData.text!)
                         scaleNum = Float(initialScaleData.text!)
-                            if offsetNum == 0 && scaleNum == 0 {
-                                
-                                y1 = Float(responseProcessedString!)
-                                
-                            }
+                        if offsetNum == 0 && scaleNum == 0 {
                             
-                            else if offsetNum != 0 && scaleNum == 0 {
-                                
-                                y1 = (inputValue1Num!-offsetNum!)/1
-                                print(y1 as Any)
-                                inputValue2.text = y1.cleanValue
-                                
-                            }
+                            y1 = Float(responseProcessedString!)
                             
-                            else {
+                        }
                             
-                        y1 = (inputValue1Num!-offsetNum!)/scaleNum!
-                                print(y1 as Any)
-                        inputValue1.text = y1.cleanValue
-                            }
+                        else if offsetNum != 0 && scaleNum == 0 {
+                            
+                            y1 = (inputValue1Num!-offsetNum!)/1
+                            print(y1 as Any)
+                            inputValue2.text = y1.cleanValue
+                            
+                        }
+                            
+                        else {
+                            
+                            y1 = (inputValue1Num!-offsetNum!)/scaleNum!
+                            print(y1 as Any)
+                            inputValue1.text = y1.cleanValue
+                        }
                         
                     }
                 case .failure(let error):
                     print(error)
-                    self.present(alertFailQuery, animated: true)
+                    self.present(alertFail, animated: true)
                 }
             case .failure(let error):
                 print(error)
                 print ("Connection failure connecting to ip")
-                self.present(alertFailConnect, animated: true)
+                self.present(alertFail, animated: true)
             }
-             client.close()
+            client.close()
         }
-            
+        
     }
     
-    @objc func calibrationAction2(sender: UIButton) {
-        
-        
+    // Same function as before, but puts value into second captured box
+    
+    @objc func captureAction2(sender: UIButton) {
         
         if calibrationValue2Entry.isUserInteractionEnabled == false || pointNumber == nil {
             
@@ -583,17 +517,6 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
             generator.impactOccurred()
             print("Connecting")
             print(point!)
-            ip1String = self.ip1.text!
-            ip1Num = Int(ip1String)
-            ip2String = self.ip2.text!
-            let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-            ip2Num = Int(ip2String[indexStartOfText...])
-            ip3String = self.ip3.text!
-            ip3Num = Int(ip3String[indexStartOfText...])
-            ip4String = self.ip4.text!
-            ip4Num = Int(ip4String[indexStartOfText...])
-            portString = self.port.text!
-            portNum = Int32(portString[indexStartOfText...])
             client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
             switch client.connect(timeout: 1) {
             case .success:
@@ -621,7 +544,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                             y2 = Float(responseProcessedString!)
                             
                         }
-                        
+                            
                         else if offsetNum != 0 && scaleNum == 0 {
                             
                             y2 = (inputValue2Num!-offsetNum!)/1
@@ -629,66 +552,96 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                             inputValue2.text = y2.cleanValue
                             
                         }
-                        
+                            
                         else {
-                        y2 = (inputValue2Num!-offsetNum!)/scaleNum!
+                            
+                            y2 = (inputValue2Num!-offsetNum!)/scaleNum!
                             print(y2 as Any)
-                        inputValue2.text = y2.cleanValue
-                        
+                            inputValue2.text = y2.cleanValue
+                            
                         }
                     }
                 case .failure(let error):
                     print(error)
-                    self.present(alertFailQuery, animated: true)
+                    self.present(alertFail, animated: true)
                 }
             case .failure(let error):
                 print(error)
-                self.present(alertFailConnect, animated: true)
+                self.present(alertFail, animated: true)
             }
             client.close()
         }
         
     }
     
+    // Function to inhibit alarms
+    
     func inhibitAlarms() {
-        ip1String = self.ip1.text!
-        ip1Num = Int(ip1String)
-        ip2String = self.ip2.text!
-        let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-        ip2Num = Int(ip2String[indexStartOfText...])
-        ip3String = self.ip3.text!
-        ip3Num = Int(ip3String[indexStartOfText...])
-        ip4String = self.ip4.text!
-        ip4Num = Int(ip4String[indexStartOfText...])
-        portString = self.port.text!
-        portNum = Int32(portString[indexStartOfText...])
+        
+        if ip1Num == nil || ip2Num == nil || ip3Num == nil || ip4Num == nil || portNum == nil {
+            
+        }
+        
+        else {
+            
         client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
         switch client.connect(timeout: 1) {
+        case .success:
+            switch client.send(string: "!I\(point!)\r" ) {
             case .success:
-                switch client.send(string: "!I\(point!)\r" ) {
-                    case .success:
-                        usleep(timeout)
-                        alarmConnect = true
-        case .failure(let error):
-        print(error)
-        self.present(alertFailQuery, animated: true)
-        }
-        
-        case .failure(let error):
-        print(error)
-        self.present(alertFailConnect, animated: true)
+                usleep(timeout)
+                alarmConnect = true
+            case .failure(let error):
+                print(error)
+                self.present(alertFail, animated: true)
             }
-            client.close()
+            
+        case .failure(let error):
+            print(error)
+            self.present(alertFail, animated: true)
+        }
+        client.close()
+        }
+    }
+    
+    // Function to uninhibit alarms
+    
+    func uninhibitAlarms() {
+        
+        if ip1Num == nil || ip2Num == nil || ip3Num == nil || ip4Num == nil || portNum == nil {
+            
+        }
+            
+        else {
+        
+        client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
+        switch client.connect(timeout: 1) {
+        case .success:
+            switch client.send(string: "!U\(point!)\r" ) {
+            case .success:
+                alarmConnect = false
+                return
+            case .failure(let error):
+                print(error)
+                self.present(alertFail, animated: true)
+            }
+        case .failure(let error):
+            print(error)
+            self.present(alertFail, animated: true)
         }
         
+        client.close()
+        }
+    }
     
-       @objc func beginCalibration(sender: UIButton) {
+    // Calibration function, this function will inhibit or uninhibit alarms and changes how the button looks on the view
+    
+    @objc func beginCalibration(sender: UIButton) {
         
         generator.impactOccurred()
         
-        
         if calibrationState == true {
-        
+            
             if state == true {
                 
                 uninhibitAlarms()
@@ -699,12 +652,15 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
             calibrationButton.setTitle("Calibrate", for: .normal)
             calibrationValue1Entry.isUserInteractionEnabled = false
             calibrationValue1Entry.backgroundColor = .gray
+            calibrationValue1Entry.textColor = .white
             calibrationValue2Entry.isUserInteractionEnabled = false
             calibrationValue2Entry.backgroundColor = .gray
+            calibrationValue2Entry.textColor = .white
             
         }
-        
+            
         else {
+            
             if state == true {
                 
                 inhibitAlarms()
@@ -712,32 +668,37 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
             }
             
             if alarmConnect == true {
-            calibrationState = true
-            calibrationButton.setTitle("Stop", for: .normal)
-            calibrationValue1Entry.isUserInteractionEnabled = true
-            calibrationValue1Entry.backgroundColor = .white
-            calibrationValue2Entry.isUserInteractionEnabled = true
-            calibrationValue2Entry.backgroundColor = .white
+                calibrationState = true
+                calibrationButton.setTitle("Stop", for: .normal)
+                calibrationValue1Entry.isUserInteractionEnabled = true
+                calibrationValue1Entry.backgroundColor = .white
+                calibrationValue1Entry.textColor = .black
+                calibrationValue2Entry.isUserInteractionEnabled = true
+                calibrationValue2Entry.backgroundColor = .white
+                calibrationValue2Entry.textColor = .black
             }
-            
+                
             else if alarmConnect == false && state == false {
                 
                 calibrationState = true
                 calibrationButton.setTitle("Stop", for: .normal)
                 calibrationValue1Entry.isUserInteractionEnabled = true
                 calibrationValue1Entry.backgroundColor = .white
+                calibrationValue1Entry.textColor = .black
                 calibrationValue2Entry.isUserInteractionEnabled = true
                 calibrationValue2Entry.backgroundColor = .white
+                calibrationValue2Entry.textColor = .black
                 
             }
-            
+                
             else {
                 print("no")
             }
             
-            
         }
     }
+    
+    // Function that changes the switch boolean value
     
     @objc func stateChanged(switchState: UISwitch) {
         
@@ -750,53 +711,33 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
-    func uninhibitAlarms() {
-        ip1String = self.ip1.text!
-        ip1Num = Int(ip1String)
-        ip2String = self.ip2.text!
-        let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-        ip2Num = Int(ip2String[indexStartOfText...])
-        ip3String = self.ip3.text!
-        ip3Num = Int(ip3String[indexStartOfText...])
-        ip4String = self.ip4.text!
-        ip4Num = Int(ip4String[indexStartOfText...])
-        portString = self.port.text!
-        portNum = Int32(portString[indexStartOfText...])
-        client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
-    switch client.connect(timeout: 1) {
-        case .success:
-            switch client.send(string: "!U\(point!)\r" ) {
-                case .success:
-                    alarmConnect = false
-                    return
-                case .failure(let error):
-                    print(error)
-                    self.present(alertFailQuery, animated: true)
-            }
-        case .failure(let error):
-            print(error)
-            self.present(alertFailConnect, animated: true)
-    }
-        client.close()
-    }
+    // Function that limits the input to the input values to a select few characters
     
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         
-        let aSet = NSCharacterSet(charactersIn:"+-.0123456789").inverted
+        let aSet = NSCharacterSet(charactersIn:"+-.0123456789").inverted // Declares set
         let compSepByCharInSet = string.components(separatedBy: aSet)
-        let numberFiltered = compSepByCharInSet.joined(separator: "")
+        let numberFiltered = compSepByCharInSet.joined(separator: "") // Filter out
         return string == numberFiltered
         
     }
+    
+    // Function gets called every time page loads
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
         ip1.text = defaults.value(forKey: "ip1Text") as? String
+        ip1Num = Int(ip1.text!)
         ip2.text = defaults.value(forKey: "ip2Text") as? String
+        let indexStartOfText = ip2.text!.index(ip2.text!.startIndex, offsetBy: 1)
+        ip2Num = Int(ip2.text![indexStartOfText...])
         ip3.text = defaults.value(forKey: "ip3Text") as? String
+        ip3Num = Int(ip3.text![indexStartOfText...])
         ip4.text = defaults.value(forKey: "ip4Text") as? String
+        ip4Num = Int(ip4.text![indexStartOfText...])
         port.text = defaults.value(forKey: "portText") as? String
+        portNum = Int32(port.text![indexStartOfText...])
         descriptionData.text = descriptorText
         tagData.text = tagText
         calibrationPointData.text = pointNumber
@@ -811,81 +752,73 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         siteText.text = siteName
         systemText.text = systemName
         
-        
-        
     }
+    
+    // Function that moves view up when keyboard shows
+    @objc func keyboardWillShow(sender: NSNotification) {
+        self.view.frame.origin.y -= 150
+    }
+    
+    @objc func keyboardWillHide(sender: NSNotification) {
+        self.view.frame.origin.y += 150
+    }
+    
+    // Main calculation for CalAssist function
     
     @objc func calculate(sender: UIButton) {
         
         if inputValue1.text == "" && inputValue2.text == "" {
             
-            
         }
-        
+            
         else {
             
-        generator.impactOccurred()
-        let inputValue1NumX = Float(calibrationValue1Entry.text!)
-        let inputValue2NumX = Float(calibrationValue2Entry.text!)
-        let newScale = (inputValue2NumX!-inputValue1NumX!)/(y2-y1)
-        let newOffset = (inputValue1NumX!)-(newScale*y1)
-        finalScaleData.text = "\(newScale)"
-        finalOffsetData.text = "\(newOffset)"
-        print(newScale)
-        print(newOffset)
-            ip1String = self.ip1.text!
-            ip1Num = Int(ip1String)
-            ip2String = self.ip2.text!
-            let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-            ip2Num = Int(ip2String[indexStartOfText...])
-            ip3String = self.ip3.text!
-            ip3Num = Int(ip3String[indexStartOfText...])
-            ip4String = self.ip4.text!
-            ip4Num = Int(ip4String[indexStartOfText...])
-            portString = self.port.text!
-            portNum = Int32(portString[indexStartOfText...])
-        client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
-        switch client.connect(timeout: 1) {
-        case .success:
-            switch client.send(string: "!S\(point!),\(newScale)\r" ) {
+            generator.impactOccurred()
+            
+            // Caluclations that occur to get new scale and offset
+            let inputValue1NumX = Float(calibrationValue1Entry.text!)
+            let inputValue2NumX = Float(calibrationValue2Entry.text!)
+            let newScale = (inputValue2NumX!-inputValue1NumX!)/(y2-y1)
+            let newOffset = (inputValue1NumX!)-(newScale*y1)
+            finalScaleData.text = "\(newScale)"
+            finalOffsetData.text = "\(newOffset)"
+            print(newScale)
+            print(newOffset)
+
+            // Sends new scale value to DBX
+            client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
+            switch client.connect(timeout: 1) {
             case .success:
-                usleep(timeout)
+                switch client.send(string: "!S\(point!),\(newScale)\r" ) {
+                case .success:
+                    usleep(timeout)
+                case .failure(let error):
+                    print(error)
+                    self.present(alertFail, animated: true)
+                }
             case .failure(let error):
                 print(error)
-                self.present(alertFailQuery, animated: true)
+                self.present(alertFail, animated: true)
             }
-        case .failure(let error):
-            print(error)
-            self.present(alertFailConnect, animated: true)
-        }
-        client.close()
-            ip1String = self.ip1.text!
-            ip1Num = Int(ip1String)
-            ip2String = self.ip2.text!
-            ip2Num = Int(ip2String[indexStartOfText...])
-            ip3String = self.ip3.text!
-            ip3Num = Int(ip3String[indexStartOfText...])
-            ip4String = self.ip4.text!
-            ip4Num = Int(ip4String[indexStartOfText...])
-            portString = self.port.text!
-            portNum = Int32(portString[indexStartOfText...])
-        client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
-        switch client.connect(timeout: 1) {
-        case .success:
-            switch client.send(string: "!O\(point!),\(newOffset)\r" ) {
+            client.close()
+            
+            // Sends new offset value to DBX
+            client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
+            switch client.connect(timeout: 1) {
             case .success:
-                usleep(timeout)
+                switch client.send(string: "!O\(point!),\(newOffset)\r" ) {
+                case .success:
+                    usleep(timeout)
+                case .failure(let error):
+                    print(error)
+                    self.present(alertFail, animated: true)
+                }
             case .failure(let error):
                 print(error)
-                self.present(alertFailQuery, animated: true)
+                self.present(alertFail, animated: true)
             }
-        case .failure(let error):
-            print(error)
-            self.present(alertFailConnect, animated: true)
-        }
             client.close()
         }
     }
     
 }
-

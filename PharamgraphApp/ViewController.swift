@@ -46,12 +46,18 @@ class ViewController: UIViewController, UITextFieldDelegate {
    var defaults = UserDefaults.standard
    var alertFail: UIAlertController!
    var generator: UIImpactFeedbackGenerator!
+   var myActivityIndicator: UIActivityIndicatorView?
    
    override func viewDidLoad() {
       
       super.viewDidLoad()
       
       generator = UIImpactFeedbackGenerator(style: .heavy)
+      
+      myActivityIndicator = UIActivityIndicatorView(style: UIActivityIndicatorView.Style.gray)
+      myActivityIndicator!.center = view.center
+      myActivityIndicator!.hidesWhenStopped = true
+      view.addSubview(myActivityIndicator!)
       
       //Background Colour white
       view.backgroundColor = UIColor.white
@@ -69,7 +75,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
       presetTitle.adjustsFontSizeToFitWidth = true;
       presetTitle.textAlignment = .center
       presetTitle.minimumScaleFactor = 12.0
-      presetTitle.center = CGPoint(x: view.bounds.width/2, y: view.bounds.height/2-180);
+      presetTitle.center = CGPoint(x: view.bounds.width/2, y: view.bounds.height/2-250);
       view.addSubview(presetTitle)
       
       //Displays "I.P. Address:" above where user enters IP in
@@ -351,6 +357,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
                                       userInfo: nil,
                                       repeats: true)
          timer!.fire()
+         myActivityIndicator!.stopAnimating()
       }
    }
    
@@ -412,6 +419,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
          
          if isRunning == false {
             
+            myActivityIndicator!.startAnimating()
             executeButton.setTitle("Stop", for: .normal)
             isRunning = true
             ip1.backgroundColor = .gray
@@ -467,6 +475,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
    
    @objc func connectTo() {
       
+      myActivityIndicator!.startAnimating()
       executeButton.setTitle("Stop", for: .normal)
       let ip1String = self.ip1.text!
       let ip1Num = Int(ip1String)
@@ -788,7 +797,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
    presetTitle.adjustsFontSizeToFitWidth = true;
    presetTitle.textAlignment = .center
    presetTitle.minimumScaleFactor = 12.0
-   presetTitle.center = CGPoint(x: view.bounds.width/2, y: view.bounds.height/2-180);
+   presetTitle.center = CGPoint(x: view.bounds.width/2, y: view.bounds.height/2-250);
    view.addSubview(presetTitle)
       
    }
