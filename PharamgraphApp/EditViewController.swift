@@ -134,12 +134,6 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         ip2.borderStyle = UITextField.BorderStyle.roundedRect
         ip2.clearsOnBeginEditing = false
         ip2.text = defaults.value(forKey: "ip2Text") as? String
-        if ip2.text == nil {
-            defaults.set("\u{200B}", forKey: "ip2Text")
-            ip2.text = defaults.value(forKey: "ip2Text") as? String
-        }
-        else {
-        }
         ip2.addDoneButtonToKeyboard(myAction:  #selector(self.ip2.resignFirstResponder))
         view.addSubview(ip2)
         
@@ -152,12 +146,6 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         ip3.borderStyle = UITextField.BorderStyle.roundedRect
         ip3.clearsOnBeginEditing = false
         ip3.text = defaults.value(forKey: "ip3Text") as? String
-        if ip3.text == nil {
-            defaults.set("\u{200B}", forKey: "ip3Text")
-            ip3.text = defaults.value(forKey: "ip3Text") as? String
-        }
-        else {
-        }
         ip3.addDoneButtonToKeyboard(myAction:  #selector(self.ip3.resignFirstResponder))
         view.addSubview(ip3)
         
@@ -170,12 +158,6 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         ip4.borderStyle = UITextField.BorderStyle.roundedRect
         ip4.clearsOnBeginEditing = false
         ip4.text = defaults.value(forKey: "ip4Text") as? String
-        if ip4.text == nil {
-            defaults.set("\u{200B}", forKey: "ip4Text")
-            ip4.text = defaults.value(forKey: "ip4Text") as? String
-        }
-        else {
-        }
         ip4.addDoneButtonToKeyboard(myAction:  #selector(self.ip4.resignFirstResponder))
         view.addSubview(ip4)
         
@@ -188,12 +170,6 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         port.borderStyle = UITextField.BorderStyle.roundedRect
         port.clearsOnBeginEditing = false
         port.text = defaults.value(forKey: "portText") as? String
-        if port.text == nil {
-            defaults.set("\u{200B}", forKey: "portText")
-            port.text = defaults.value(forKey: "portText") as? String
-        }
-        else {
-        }
         port.addDoneButtonToKeyboard(myAction:  #selector(self.port.resignFirstResponder))
         view.addSubview(port)
         
@@ -214,12 +190,6 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         interval.borderStyle = UITextField.BorderStyle.roundedRect
         interval.clearsOnBeginEditing = false
         interval.text = defaults.value(forKey: "intervalText") as? String
-        if interval.text == nil {
-            defaults.set("\u{200B}", forKey: "intervalText")
-            interval.text = defaults.value(forKey: "intervalText") as? String
-        }
-        else {
-        }
         interval.addDoneButtonToKeyboard(myAction:  #selector(self.interval.resignFirstResponder))
         view.addSubview(interval)
         
@@ -291,12 +261,12 @@ class EditViewController: UIViewController, UITextFieldDelegate {
     @objc func clearAction(_sender: UIButton) {
         defaults.set("", forKey: "name")
         defaults.set("", forKey: "ip1Text")
-        defaults.set("\u{200B}", forKey: "ip2Text")
-        defaults.set("\u{200B}", forKey: "ip3Text")
-        defaults.set("\u{200B}", forKey: "ip4Text")
-        defaults.set("\u{200B}", forKey: "portText")
-        defaults.set("\u{200B}", forKey: "pointText")
-        defaults.set("\u{200B}", forKey: "intervalText")
+        defaults.set("", forKey: "ip2Text")
+        defaults.set("", forKey: "ip3Text")
+        defaults.set("", forKey: "ip4Text")
+        defaults.set("", forKey: "portText")
+        defaults.set("", forKey: "pointText")
+        defaults.set("", forKey: "intervalText")
         presetTitle.text =  defaults.value(forKey: "name") as? String
         ip1.text = defaults.value(forKey: "ip1Text") as? String
         ip2.text = defaults.value(forKey: "ip2Text") as? String
@@ -402,7 +372,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         let currentCharacterCount = ((textField.text?.count)! + string.count) - 1
         
         // Automatically switch to next textfield, dependant on backspace or typing in
-        
+        /*
         switch (textField, currentCharacterCount) {
         case (self.ip1, 3):
             let ip1Num = Int(self.ip1.text!)
@@ -512,11 +482,11 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         default:
             break
         }
-        
+        */
         return true
-        
+ 
     }
-    
+ 
     // Saves values on view appearing
     
     override func viewWillAppear(_ animated: Bool) {

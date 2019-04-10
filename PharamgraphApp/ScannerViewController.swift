@@ -216,14 +216,13 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         let ip1String = self.ip1.text!
         let ip1Num = Int(ip1String)
         let ip2String = self.ip2.text!
-        let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-        let ip2Num = Int(ip2String[indexStartOfText...])
+        let ip2Num = Int(ip2String)
         let ip3String = self.ip3.text!
-        let ip3Num = Int(ip3String[indexStartOfText...])
+        let ip3Num = Int(ip3String)
         let ip4String = self.ip4.text!
-        let ip4Num = Int(ip4String[indexStartOfText...])
+        let ip4Num = Int(ip4String)
         let portString = self.port.text!
-        let portNum = Int32(portString[indexStartOfText...])
+        let portNum = Int32(portString)
         
         print("\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!) Port: \(portNum!)")
         

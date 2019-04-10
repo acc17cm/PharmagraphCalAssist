@@ -120,11 +120,10 @@ class PresetViewController: UIViewController, UITextFieldDelegate, UITableViewDe
         let ip4String = ip4!
         let portString = port!
         let ip1Num = Int(ip1String)
-        let indexStartOfText = ip2String.index((ip2String.startIndex), offsetBy: 1)
-        let ip2Num = Int(ip2String[indexStartOfText...])
-        let ip3Num = Int(ip3String[indexStartOfText...])
-        let ip4Num = Int(ip4String[indexStartOfText...])
-        let portNum = Int32(portString[indexStartOfText...])
+        let ip2Num = Int(ip2String)
+        let ip3Num = Int(ip3String)
+        let ip4Num = Int(ip4String)
+        let portNum = Int32(portString)
         
         if portNum != 49008 {   //CHEATED FOR DEMO!!!
             

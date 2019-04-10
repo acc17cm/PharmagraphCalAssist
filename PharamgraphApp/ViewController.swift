@@ -349,8 +349,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
          
          generator.impactOccurred()
          let intervalString = self.interval.text!
-         let indexStartOfText = intervalString.index(intervalString.startIndex, offsetBy: 1)
-         let intervalNum = Int(intervalString[indexStartOfText...])
+         let intervalNum = Int(intervalString)
          timer = Timer.scheduledTimer(timeInterval: Double(intervalNum!),
                                       target: self,
                                       selector: #selector(ViewController.connectTo),
@@ -480,14 +479,13 @@ class ViewController: UIViewController, UITextFieldDelegate {
       let ip1String = self.ip1.text!
       let ip1Num = Int(ip1String)
       let ip2String = self.ip2.text!
-      let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-      let ip2Num = Int(ip2String[indexStartOfText...])
+      let ip2Num = Int(ip2String)
       let ip3String = self.ip3.text!
-      let ip3Num = Int(ip3String[indexStartOfText...])
+      let ip3Num = Int(ip3String)
       let ip4String = self.ip4.text!
-      let ip4Num = Int(ip4String[indexStartOfText...])
+      let ip4Num = Int(ip4String)
       let portString = self.port.text!
-      let portNum = Int32(portString[indexStartOfText...])
+      let portNum = Int32(portString)
       
       print("\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!) Port: \(portNum!)")
       
@@ -516,8 +514,8 @@ class ViewController: UIViewController, UITextFieldDelegate {
                
             }
             
-            
             var checkSumCalculatedString = String(format:"%02X", checkSumCalculated)
+            let indexStartOfText = checkSumCalculatedString.index((response?.startIndex)!, offsetBy: 1)
             checkSumCalculatedString = String(checkSumCalculatedString[indexStartOfText...])
             
             let checkSumStartOfText = response!.index(response!.startIndex, offsetBy: 57)
@@ -669,7 +667,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
       alertInterval.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
       
       let currentCharacterCount = ((textField.text?.count)! + string.count) - 1
-      
+      /*
       switch (textField, currentCharacterCount) {
       case (self.ip1, 3):
          let ip1Num = Int(self.ip1.text!)
@@ -775,7 +773,7 @@ class ViewController: UIViewController, UITextFieldDelegate {
       default:
          break
       }
-      
+      */
       return true
    }
    
