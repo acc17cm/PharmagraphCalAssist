@@ -728,7 +728,8 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        if ip1 != nil {
+        
+        if ip1.text != nil {
             
         ip1.text = defaults.value(forKey: "ip1Text") as? String
         ip1Num = Int(ip1.text!)
