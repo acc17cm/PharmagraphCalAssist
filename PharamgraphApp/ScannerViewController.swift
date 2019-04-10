@@ -29,10 +29,11 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
     var port : UITextField!
     var alertFail: UIAlertController!
     var timeout: UInt32!
+    var firstFail: Bool!
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        firstFail = true
         timeout = 100000
         let defaults = UserDefaults.standard
         
@@ -57,12 +58,6 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         ip2.borderStyle = UITextField.BorderStyle.roundedRect
         ip2.clearsOnBeginEditing = false
         ip2.text = defaults.value(forKey: "ip2Text") as? String
-        if ip2.text == nil {
-            defaults.set("\u{200B}", forKey: "ip2Text")
-            ip2.text = defaults.value(forKey: "ip2Text") as? String
-        }
-        else {
-        }
         
         //Third textfield where user enters IP
         ip3 = UITextField(frame: CGRect(x: 180, y: 100, width: 60, height: 20))
@@ -73,12 +68,6 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         ip3.borderStyle = UITextField.BorderStyle.roundedRect
         ip3.clearsOnBeginEditing = false
         ip3.text = defaults.value(forKey: "ip3Text") as? String
-        if ip3.text == nil {
-            defaults.set("\u{200B}", forKey: "ip3Text")
-            ip3.text = defaults.value(forKey: "ip3Text") as? String
-        }
-        else {
-        }
         
         //Fourth textfield where user enters IP
         ip4 = UITextField(frame: CGRect(x: 250, y: 100, width: 60, height: 20))
@@ -89,12 +78,6 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         ip4.borderStyle = UITextField.BorderStyle.roundedRect
         ip4.clearsOnBeginEditing = false
         ip4.text = defaults.value(forKey: "ip4Text") as? String
-        if ip4.text == nil {
-            defaults.set("\u{200B}", forKey: "ip4Text")
-            ip4.text = defaults.value(forKey: "ip4Text") as? String
-        }
-        else {
-        }
         
         //Textfield where user enters port
         port = UITextField(frame: CGRect(x: 330, y: 100, width: 70, height: 20))
@@ -105,12 +88,6 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         port.borderStyle = UITextField.BorderStyle.roundedRect
         port.clearsOnBeginEditing = false
         port.text = defaults.value(forKey: "portText") as? String
-        if port.text == nil {
-            defaults.set("\u{200B}", forKey: "portText")
-            port.text = defaults.value(forKey: "portText") as? String
-        }
-        else {
-        }
         
         alertFail = UIAlertController(title: "Connection Failed", message: "Please check your connection and try again", preferredStyle: .alert)
         alertFail.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
@@ -175,7 +152,7 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        firstFail = true
         qrCodeFrameView.layer.borderColor = UIColor.green.cgColor
         
         if (captureSession?.isRunning == false) {
@@ -237,7 +214,8 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
                     return }
                 
                 if let response = String(bytes: data, encoding: .utf8) {
-                    print("Success!")
+                    firstFail = false
+                    print("Success! point")
                     let indexEndOfText = response.index(response.endIndex, offsetBy: -3)
                     let responseString = response[...indexEndOfText]
                     tagText = code
@@ -252,7 +230,7 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
             print(error)
             self.present(alertFail, animated: true)
         }
-        
+        if firstFail == false {
         switch client.connect(timeout: 1) {
         case .success:
             switch client.send(string: "?D\(pointNumber!)\r" ) {
@@ -262,8 +240,8 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
                     client.close()
                     return }
                 
-                if let response = String(bytes: data, encoding: .utf8) {
-                    print("Success!")
+                if let response = String(bytes: data, encoding: .utf8 ) {
+                    print("Success! descriptor")
                     let indexEndOfText = response.index(response.endIndex, offsetBy: -3)
                     let responseString = response[...indexEndOfText]
                     print(responseString)
@@ -290,7 +268,7 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
                     return }
                 
                 if let response = String(bytes: data, encoding: .utf8) {
-                    print("Success!")
+                    print("Success! scale")
                     let indexEndOfText = response.index(response.endIndex, offsetBy: -3)
                     let responseString = response[...indexEndOfText]
                     print(responseString)
@@ -338,12 +316,25 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
             print(error)
             self.present(alertFail, animated: true)
         }
+           
         
+      }
+        else {
+            descriptorText = ""
+            pointNumber = ""
+            tagText = ""
+            scaleText = ""
+            offsetText = ""
+            let appDelegate = UIApplication.shared.delegate as! AppDelegate
+            let tabBar = appDelegate.tabBarController
+            tabBar?.selectedIndex = 0
+        }
     }
     
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
     }
+    
 }
 
 extension Float

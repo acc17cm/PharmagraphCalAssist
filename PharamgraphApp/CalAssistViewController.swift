@@ -640,7 +640,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         
         generator.impactOccurred()
         
-        if calibrationState == true {
+        if calibrationState == true  {
             
             if state == true {
                 
@@ -664,12 +664,13 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         else {
             
             if state == true {
-                
+
                 inhibitAlarms()
                 
             }
             
             if alarmConnect == true {
+                
                 calibrationState = true
                 calibrationButton.setTitle("Stop", for: .normal)
                 calibrationValue1Entry.isUserInteractionEnabled = true
@@ -754,6 +755,8 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         customerText.text = customerName
         siteText.text = siteName
         systemText.text = systemName
+        finalScaleData.text = ""
+        finalOffsetData.text = ""
             
         }
         
@@ -817,7 +820,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
             client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
             switch client.connect(timeout: 1) {
             case .success:
-                switch client.send(string: "!O\(point!),\(newOffset)\r" ) {
+                switch client.send(string: "!O\(point!),\(newOffset)\r") {
                 case .success:
                     usleep(timeout)
                 case .failure(let error):

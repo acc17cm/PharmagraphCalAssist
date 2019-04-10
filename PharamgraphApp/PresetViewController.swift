@@ -124,17 +124,24 @@ class PresetViewController: UIViewController, UITextFieldDelegate, UITableViewDe
         let ip3Num = Int(ip3String)
         let ip4Num = Int(ip4String)
         let portNum = Int32(portString)
-        
+        /*
         if portNum != 49008 {   //CHEATED FOR DEMO!!!
             
-            tabBar?.selectedIndex = 0
+            tagText = ""
+            pointNumber = ""
+            scaleText = ""
+            offsetText = ""
+            descriptorText = ""
             customerName = ""
             siteName = ""
             systemName = ""
+            tabBar?.selectedIndex = 0
+           
             
         }
+ */
         
-        else {
+        //else {
         
         let client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
         switch client.connect(timeout: 1) {
@@ -158,9 +165,28 @@ class PresetViewController: UIViewController, UITextFieldDelegate, UITableViewDe
                 
             case .failure(let error):
                 print(error)
+                tagText = ""
+                pointNumber = ""
+                scaleText = ""
+                offsetText = ""
+                descriptorText = ""
+                customerName = ""
+                siteName = ""
+                systemName = ""
+                tabBar?.selectedIndex = 0
             }
         case .failure(let error):
+            
             print(error)
+            tagText = ""
+            pointNumber = ""
+            scaleText = ""
+            offsetText = ""
+            descriptorText = ""
+            customerName = ""
+            siteName = ""
+            systemName = ""
+            tabBar?.selectedIndex = 0
         }
         
         switch client.connect(timeout: 1) {
@@ -216,8 +242,15 @@ class PresetViewController: UIViewController, UITextFieldDelegate, UITableViewDe
         case .failure(let error):
             print(error)
         }
+        
+        tagText = ""
+        pointNumber = ""
+        scaleText = ""
+        offsetText = ""
+        descriptorText = ""
+ 
         tabBar?.selectedIndex = 0
-        }
+        //}
     }
     
     func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
