@@ -68,6 +68,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
     var offsetNum: Float!
     var scaleNum: Float!
     var alertFail: UIAlertController!
+    var alertCalculate: UIAlertController!
     var generator: UIImpactFeedbackGenerator!
     var alarmConnect: Bool!
     var timeout: UInt32!
@@ -426,6 +427,9 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         
         alertFail = UIAlertController(title: "Connection Failed", message: "Please check your connection and try again", preferredStyle: .alert)
         alertFail.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
+        
+        alertCalculate  = UIAlertController(title: "Calculation error", message: "Please check your values", preferredStyle: .alert)
+        alertCalculate.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
         
     }
     
@@ -798,7 +802,8 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
             finalOffsetData.text = "\(newOffset)"
             print(newScale)
             print(newOffset)
-
+            
+            if newScale.isNaN == false && newOffset.isNaN == false {
             // Sends new scale value to DBX
             client = TCPClient(address: "\(ip1Num!).\(ip2Num!).\(ip3Num!).\(ip4Num!)", port: portNum!)
             switch client.connect(timeout: 1) {
@@ -832,6 +837,12 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
                 self.present(alertFail, animated: true)
             }
             client.close()
+          }
+            else {
+                self.present(alertFail, animated: true)
+                finalOffsetData.text = ""
+                finalScaleData.text = ""
+            }
         }
     }
     
