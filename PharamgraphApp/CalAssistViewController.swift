@@ -428,7 +428,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         alertFail = UIAlertController(title: "Connection Failed", message: "Please check your connection and try again", preferredStyle: .alert)
         alertFail.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
         
-        alertCalculate  = UIAlertController(title: "Calculation error", message: "Please check your values", preferredStyle: .alert)
+        alertCalculate  = UIAlertController(title: "Calculation Error", message: "The two captured values must be unique", preferredStyle: .alert)
         alertCalculate.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: nil))
         
     }
@@ -839,7 +839,7 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
             client.close()
           }
             else {
-                self.present(alertFail, animated: true)
+                self.present(alertCalculate, animated: true)
                 finalOffsetData.text = ""
                 finalScaleData.text = ""
             }
