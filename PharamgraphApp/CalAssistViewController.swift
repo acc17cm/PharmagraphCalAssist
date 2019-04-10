@@ -644,6 +644,8 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
             
             if state == true {
                 
+                alarmsSwitch.setOn(false, animated: true)
+                state = false
                 uninhibitAlarms()
                 
             }
@@ -726,7 +728,8 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
+        if ip1 != nil {
+            
         ip1.text = defaults.value(forKey: "ip1Text") as? String
         ip1Num = Int(ip1.text!)
         ip2.text = defaults.value(forKey: "ip2Text") as? String
@@ -751,16 +754,24 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         customerText.text = customerName
         siteText.text = siteName
         systemText.text = systemName
+            
+        }
         
     }
     
     // Function that moves view up when keyboard shows
-    @objc func keyboardWillShow(sender: NSNotification) {
-        self.view.frame.origin.y -= 150
+    @objc func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameBeginUserInfoKey] as? NSValue)?.cgRectValue {
+            if self.view.frame.origin.y == 0 {
+                self.view.frame.origin.y -= 170
+            }
+        }
     }
     
-    @objc func keyboardWillHide(sender: NSNotification) {
-        self.view.frame.origin.y += 150
+    @objc func keyboardWillHide(notification: NSNotification) {
+        if self.view.frame.origin.y != 0 {
+            self.view.frame.origin.y = 0
+        }
     }
     
     // Main calculation for CalAssist function
