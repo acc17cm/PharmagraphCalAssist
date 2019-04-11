@@ -30,6 +30,7 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
     var alertFail: UIAlertController!
     var timeout: UInt32!
     var firstFail: Bool!
+    var scanRectTransformed: CGRect!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +39,6 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         let defaults = UserDefaults.standard
         
          let placeholder = NSAttributedString(string: "")
-        
         
         ip1 = UITextField(frame: CGRect(x: 40, y: 100, width: 60, height: 20))
         ip1.keyboardType = UIKeyboardType.numberPad
@@ -112,6 +112,19 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         }
         
         let metadataOutput = AVCaptureMetadataOutput()
+        let size = 200
+        let screenWidth = self.view.frame.size.width
+        print(screenWidth)
+        print(self.view.frame.size.height)
+        print(self.view.bounds.width)
+        print(self.view.bounds.height)
+        let xPos = (CGFloat(screenWidth) / CGFloat(2)) - (CGFloat(size) / CGFloat(2))
+        let scanRect = CGRect(x: Int(xPos), y: 200, width: size, height: size)
+        var x = scanRect.origin.x/375
+        var y = scanRect.origin.y/812
+        var width = scanRect.width/375
+        var height = scanRect.height/812
+        scanRectTransformed = CGRect(x: 0.2, y: 0.32, width: 0.6, height: 0.3)
         
         if (captureSession.canAddOutput(metadataOutput)) {
             captureSession.addOutput(metadataOutput)
@@ -129,12 +142,13 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         view.layer.addSublayer(previewLayer)
         
         captureSession.startRunning()
+        metadataOutput.rectOfInterest = scanRectTransformed
         
         // Initialize QR Code Frame to highlight the QR code
         qrCodeFrameView = UIView()
         
         if let qrCodeFrameView = qrCodeFrameView {
-            qrCodeFrameView.frame = CGRect(x: view.bounds.width/2-100, y: view.bounds.height/2-100, width: 200, height: 200)
+            qrCodeFrameView.frame = CGRect(x: view.bounds.width/2-50, y: view.bounds.height/2-50, width: 100, height: 100)
             qrCodeFrameView.layer.borderColor = UIColor.red.cgColor
             qrCodeFrameView.layer.borderWidth = 2
             view.addSubview(qrCodeFrameView)
