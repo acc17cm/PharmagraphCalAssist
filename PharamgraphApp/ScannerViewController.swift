@@ -22,6 +22,11 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
     var codeString: String!
     var defaults = UserDefaults.standard
     var qrCodeFrameView: UIView!
+    var blackLeftView: UIView!
+    var blackRightView: UIView!
+    var blackUpView: UIView!
+    var blackDownView: UIView!
+    var scannerView: UIView!
     var ip1 : UITextField!
     var ip2 : UITextField!
     var ip3 : UITextField!
@@ -31,6 +36,8 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
     var timeout: UInt32!
     var firstFail: Bool!
     var scanRectTransformed: CGRect!
+    var scanRectView: CGRect!
+    var scanRect: CGRect!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +45,7 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         timeout = 100000
         let defaults = UserDefaults.standard
         
-         let placeholder = NSAttributedString(string: "")
+        let placeholder = NSAttributedString(string: "")
         
         ip1 = UITextField(frame: CGRect(x: 40, y: 100, width: 60, height: 20))
         ip1.keyboardType = UIKeyboardType.numberPad
@@ -112,23 +119,16 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         }
         
         let metadataOutput = AVCaptureMetadataOutput()
-        let size = 200
         let screenWidth = self.view.frame.size.width
         print(screenWidth)
         print(self.view.frame.size.height)
         print(self.view.bounds.width)
         print(self.view.bounds.height)
-        let xPos = (CGFloat(screenWidth) / CGFloat(2)) - (CGFloat(size) / CGFloat(2))
-        let scanRect = CGRect(x: Int(xPos), y: 200, width: size, height: size)
-        var x = scanRect.origin.x/375
-        var y = scanRect.origin.y/812
-        var width = scanRect.width/375
-        var height = scanRect.height/812
-        scanRectTransformed = CGRect(x: 0.2, y: 0.32, width: 0.6, height: 0.3)
+        let scanRectPoints = CGRect(x: 0.278, y: 0.387, width: 0.45, height: 0.22)
+        scanRect = CGRect(x: 0.2, y: 0.2, width: 0.6, height: 0.6)
         
         if (captureSession.canAddOutput(metadataOutput)) {
             captureSession.addOutput(metadataOutput)
-            
             metadataOutput.setMetadataObjectsDelegate(self, queue: DispatchQueue.main)
             metadataOutput.metadataObjectTypes = [.qr]
         } else {
@@ -140,20 +140,72 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         previewLayer.frame = view.layer.bounds
         previewLayer.videoGravity = .resizeAspectFill
         view.layer.addSublayer(previewLayer)
-        
+        captureSession.sessionPreset = AVCaptureSession.Preset.hd1280x720;
         captureSession.startRunning()
-        metadataOutput.rectOfInterest = scanRectTransformed
+        metadataOutput.rectOfInterest = scanRect
+        
+        scannerView = UIView()
+        
+        if let scannerView = scannerView {
+            //scannerView.frame = CGRect(x: 0.278*375, y: 0.387*812, width: 0.45*375, height: 0.22*812)
+            scannerView.frame = CGRect(x: 0.2*1280, y: 0.2*720, width: 0.6*1280, height: 0.62*720)
+            scannerView.layer.backgroundColor = UIColor.red.cgColor
+            scannerView.layer.opacity = 0.5
+            //view.addSubview(scannerView)
+            //view.bringSubviewToFront(scannerView)
+        }
+        
+        blackLeftView = UIView()
+    
+        
+        if let blackLeftView = blackLeftView {
+            blackLeftView.frame = CGRect(x: 0, y: 0, width: 103, height:  self.view.frame.height)
+            blackLeftView.layer.backgroundColor = UIColor.black.cgColor
+            blackLeftView.layer.opacity = 0.5
+            view.addSubview(blackLeftView)
+        }
+        
+        blackRightView = UIView()
+        
+        if let blackRightView = blackRightView {
+            blackRightView.frame = CGRect(x: 275, y: 0, width: 137.5, height:  self.view.frame.height)
+            blackRightView.layer.backgroundColor = UIColor.black.cgColor
+            blackRightView.layer.opacity = 0.5
+            view.addSubview(blackRightView)
+        }
+        
+        blackUpView = UIView()
+        
+        if let blackUpView = blackUpView {
+            blackUpView.frame = CGRect(x: 103, y: 0, width: 172, height:  313)
+            blackUpView.layer.backgroundColor = UIColor.black.cgColor
+            blackUpView.layer.opacity = 0.5
+            view.addSubview(blackUpView)
+        }
+        
+        blackDownView = UIView()
+        
+        if let blackDownView = blackDownView {
+            blackDownView.frame = CGRect(x: 103, y: 494.5, width: 172, height:  313)
+            blackDownView.layer.backgroundColor = UIColor.black.cgColor
+            blackDownView.layer.opacity = 0.5
+            view.addSubview(blackDownView)
+        }
+        
+        
         
         // Initialize QR Code Frame to highlight the QR code
         qrCodeFrameView = UIView()
         
         if let qrCodeFrameView = qrCodeFrameView {
-            qrCodeFrameView.frame = CGRect(x: view.bounds.width/2-50, y: view.bounds.height/2-50, width: 100, height: 100)
-            qrCodeFrameView.layer.borderColor = UIColor.red.cgColor
-            qrCodeFrameView.layer.borderWidth = 2
+            qrCodeFrameView.frame = CGRect(x: 0.278*375, y: 0.387*812, width: 0.45*375, height: 0.22*812)
+
             view.addSubview(qrCodeFrameView)
             view.bringSubviewToFront(qrCodeFrameView)
         }
+        
+        
+        
 
     }
     
@@ -166,8 +218,9 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        self.qrCodeFrameView.layer.addSublayer(self.createFrame())
         firstFail = true
-        qrCodeFrameView.layer.borderColor = UIColor.green.cgColor
+
         
         if (captureSession?.isRunning == false) {
             captureSession.startRunning()
@@ -193,6 +246,7 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
         captureSession.stopRunning()
         
         if let metadataObject = metadataObjects.first {
+            
             guard let readableObject = metadataObject as? AVMetadataMachineReadableCodeObject else { return }
             guard let stringValue = readableObject.stringValue else { return }
             AudioServicesPlaySystemSound(SystemSoundID(kSystemSoundID_Vibrate))
@@ -348,6 +402,32 @@ class ScannerViewController: UIViewController, AVCaptureMetadataOutputObjectsDel
     override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
         return .portrait
     }
+    
+    func createFrame() -> CAShapeLayer {
+        let height: CGFloat = self.qrCodeFrameView.frame.size.height
+        let width: CGFloat = self.qrCodeFrameView.frame.size.width
+        let path = UIBezierPath()
+        path.move(to: CGPoint(x: 0, y: 25))
+        path.addLine(to: CGPoint(x: 0, y: 0))
+        path.addLine(to: CGPoint(x: 25, y: 0))
+        path.move(to: CGPoint(x: width - 25, y: 0))
+        path.addLine(to: CGPoint(x: width - 0, y: 0))
+        path.addLine(to: CGPoint(x: width - 0, y: 25))
+        path.move(to: CGPoint(x: 0, y: height - 25))
+        path.addLine(to: CGPoint(x: 0, y: height - 0))
+        path.addLine(to: CGPoint(x: 25, y: height - 0))
+        path.move(to: CGPoint(x: width - 25, y: height - 0))
+        path.addLine(to: CGPoint(x: width - 0, y: height - 0))
+        path.addLine(to: CGPoint(x: width - 0, y: height - 25))
+        let shape = CAShapeLayer()
+        shape.path = path.cgPath
+        shape.strokeColor = UIColor.white.cgColor
+        shape.lineWidth = 3
+        shape.fillColor = UIColor.clear.cgColor
+        return shape
+    }
+    
+    
     
 }
 

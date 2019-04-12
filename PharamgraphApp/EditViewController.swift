@@ -41,6 +41,8 @@ class EditViewController: UIViewController, UITextFieldDelegate {
     
     override func viewDidLoad() {
         
+    
+        
         // Keyboard notifications for moving view up when textfield is being entered
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -372,117 +374,125 @@ class EditViewController: UIViewController, UITextFieldDelegate {
         let currentCharacterCount = ((textField.text?.count)! + string.count) - 1
         
         // Automatically switch to next textfield, dependant on backspace or typing in
-        /*
+        
         switch (textField, currentCharacterCount) {
         case (self.ip1, 3):
             let ip1Num = Int(self.ip1.text!)
+            if self.ip1.canBecomeFirstResponder == true {
             if 0...255 ~= ip1Num! {
-                self.ip2.becomeFirstResponder()
+                //self.ip2.becomeFirstResponder()
             }
             else {
                 self.present(alert, animated: true)
             }
-        case (self.ip2, 4):
-            let ip2String = self.ip2.text!
-            let indexStartOfText = ip2String.index(ip2String.startIndex, offsetBy: 1)
-            let ip2Num = Int(ip2String[indexStartOfText...])
+            }
+        case (self.ip2, 3):
+            let ip2Num = Int(self.ip2.text!)
             if 0...255 ~= ip2Num! {
-                self.ip3.becomeFirstResponder()
+                //self.ip3.becomeFirstResponder()
             }
             else {
                 self.present(alert, animated: true)
             }
-        case (self.ip3, 4):
-            let ip3String = self.ip3.text!
-            let indexStartOfText = ip3String.index(ip3String.startIndex, offsetBy: 1)
-            let ip3Num = Int(ip3String[indexStartOfText...])
+        case (self.ip3, 3):
+            let ip3Num = Int(self.ip3.text!)
             if 0...255 ~= ip3Num! {
-                self.ip4.becomeFirstResponder()
+                //self.ip4.becomeFirstResponder()
             }
             else {
                 self.present(alert, animated: true)
             }
-        case (self.ip4, 4):
-            let ip4String = self.ip4.text!
-            let indexStartOfText = ip4String.index(ip4String.startIndex, offsetBy: 1)
-            let ip4Num = Int(ip4String[indexStartOfText...])
+        case (self.ip4, 3):
+            let ip4Num = Int(self.ip4.text!)
             if 0...255 ~= ip4Num! {
-                self.port.becomeFirstResponder()
+                //self.port.becomeFirstResponder()
             }
             else {
                 self.present(alert, animated: true)
             }
-        case (self.port, 6):
-            let portString = self.port.text!
-            let indexStartOfText = portString.index(portString.startIndex, offsetBy: 1)
-            let portNum = Int(portString[indexStartOfText...])
+        case (self.port, 5):
+            let portNum = Int(self.port.text!)
             if 0...65535 ~= portNum! {
-                self.interval.becomeFirstResponder()
+                //self.interval.becomeFirstResponder()
             }
             else {
                 self.present(alertPort, animated: true)
             }
             
         case (self.interval, 5):
-            let intervalString = self.interval.text!
-            let indexStartOfText = intervalString.index(intervalString.startIndex, offsetBy: 1)
-            let intervalNum = Int(intervalString[indexStartOfText...])
+            let intervalNum = Int(self.interval.text!)
             if 0...3600 ~= intervalNum! {
                 self.interval.endEditing(true)
             }
             else {
                 self.present(alertInterval, animated: true)
             }
+            
         case (self.ip2, 0):
-            if isBackSpace == -92 && ip2.text == "\u{200B}" {
-                ip1.becomeFirstResponder()
+            if ip1.text!.count != 0 {
+            let ip1Num = Int(self.ip1.text!)
+            if 0...255 ~= ip1Num!  {
+                
             }
             else {
+                ip1.becomeFirstResponder()
+                self.present(alert, animated: true)
                 
-                
+            }
             }
         case (self.ip3, 0):
-            if isBackSpace == -92 && ip3.text == "\u{200B}" {
-                ip2.becomeFirstResponder()
+            if ip2.text!.count != 0 {
+            let ip2Num = Int(self.ip2.text!)
+            if 0...255 ~= ip2Num!  {
                 
             }
             else {
+                ip2.becomeFirstResponder()
+                self.present(alert, animated: true)
                 
-                
+            }
             }
         case (self.ip4, 0):
-            if isBackSpace == -92 && ip4.text == "\u{200B}" {
-                ip3.becomeFirstResponder()
+            if ip3.text!.count != 0 {
+            let ip3Num = Int(self.ip3.text!)
+            if 0...255 ~= ip3Num!  {
                 
             }
             else {
+                ip3.becomeFirstResponder()
+                self.present(alert, animated: true)
                 
-                
+            }
             }
         case (self.port, 0):
-            if isBackSpace == -92 && port.text == "\u{200B}" {
+            if ip4.text!.count != 0 {
+            let ip4Num = Int(self.ip4.text!)
+            if 0...255 ~= ip4Num!  {
+                
+            }
+            else {
                 ip4.becomeFirstResponder()
+                self.present(alertPort, animated: true)
                 
             }
-            else {
-                
             }
-
         case (self.interval, 0):
-            if isBackSpace == -92 && interval.text == "\u{200B}" {
-                port.becomeFirstResponder()
+            if port.text!.count != 0 {
+            let portNum = Int(self.port.text!)
+            if 0...255 ~= portNum!  {
                 
             }
-                
             else {
+                port.becomeFirstResponder()
+                self.present(alertInterval, animated: true)
                 
-                
+            }
             }
             
         default:
             break
         }
-        */
+        
         return true
  
     }
