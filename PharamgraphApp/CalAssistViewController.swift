@@ -638,6 +638,29 @@ class CalAssistViewController: UIViewController, UITextFieldDelegate {
         }
     }
     
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        if calibrationState == true {
+            
+            calibrationState = false
+            calibrationButton.setTitle("Calibrate", for: .normal)
+            calibrationValue1Entry.isUserInteractionEnabled = false
+            calibrationValue1Entry.backgroundColor = .gray
+            calibrationValue1Entry.textColor = .white
+            calibrationValue2Entry.isUserInteractionEnabled = false
+            calibrationValue2Entry.backgroundColor = .gray
+            calibrationValue2Entry.textColor = .white
+        
+        if state == true {
+            
+            alarmsSwitch.setOn(false, animated: true)
+            state = false
+            uninhibitAlarms()
+            
+        }
+        }
+    }
     // Calibration function, this function will inhibit or uninhibit alarms and changes how the button looks on the view
     
     @objc func beginCalibration(sender: UIButton) {

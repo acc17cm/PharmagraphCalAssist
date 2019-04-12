@@ -38,11 +38,12 @@ class EditViewController: UIViewController, UITextFieldDelegate {
     var dbP: OpaquePointer?
     var stmt: OpaquePointer?
     var presetList = [Preset]()
+    var generator: UIImpactFeedbackGenerator!
     
     override func viewDidLoad() {
         
     
-        
+        generator = UIImpactFeedbackGenerator(style: .heavy) // Initialisers for haptic generator
         // Keyboard notifications for moving view up when textfield is being entered
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -261,6 +262,7 @@ class EditViewController: UIViewController, UITextFieldDelegate {
     
     // Clears fields, puts invisible character into every field except first one
     @objc func clearAction(_sender: UIButton) {
+        generator.impactOccurred()
         defaults.set("", forKey: "name")
         defaults.set("", forKey: "ip1Text")
         defaults.set("", forKey: "ip2Text")
@@ -280,7 +282,12 @@ class EditViewController: UIViewController, UITextFieldDelegate {
     
     // Save function that saves preset to database
     @objc func presetAction() {
-        
+        generator.impactOccurred()
+        descriptorText = ""
+        pointNumber = ""
+        tagText = ""
+        scaleText = ""
+        offsetText = ""
         let alert = UIAlertController(title: "Preset name", message: "Enter preset name:", preferredStyle: .alert) // Banner appears
         
         // Text field in banner
@@ -472,19 +479,19 @@ class EditViewController: UIViewController, UITextFieldDelegate {
             }
             else {
                 ip4.becomeFirstResponder()
-                self.present(alertPort, animated: true)
+                self.present(alert, animated: true)
                 
             }
             }
         case (self.interval, 0):
             if port.text!.count != 0 {
             let portNum = Int(self.port.text!)
-            if 0...255 ~= portNum!  {
+            if 0...65535 ~= portNum!  {
                 
             }
             else {
                 port.becomeFirstResponder()
-                self.present(alertInterval, animated: true)
+                self.present(alertPort, animated: true)
                 
             }
             }
